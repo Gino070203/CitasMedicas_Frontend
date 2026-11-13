@@ -3,7 +3,11 @@ import { Routes } from '@angular/router';
 import { authGuard, roleGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./features/landing/landing.component').then((m) => m.LandingComponent),
+  },
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then((m) => m.authRoutes),
@@ -24,5 +28,5 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard(['ADMIN'])],
     loadChildren: () => import('./features/admin/admin.routes').then((m) => m.adminRoutes),
   },
-  { path: '**', redirectTo: 'auth/login' },
+  { path: '**', redirectTo: '' },
 ];

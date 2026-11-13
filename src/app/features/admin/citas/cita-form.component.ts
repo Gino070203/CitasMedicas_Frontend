@@ -8,6 +8,7 @@ import { Medico } from '../../../core/models/medico.model';
 import { Paciente } from '../../../core/models/paciente.model';
 import { extraerMensajeError } from '../../../core/utils/http-error';
 import { AdminService } from '../services/admin.service';
+import { FlatpickrDiaSemanaDirective } from './flatpickr-dia-semana.directive';
 
 const DIAS: Record<string, string> = {
   MONDAY: 'Lunes',
@@ -21,7 +22,7 @@ const DIAS: Record<string, string> = {
 
 @Component({
   selector: 'app-admin-cita-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, FlatpickrDiaSemanaDirective],
   template: `
     <main class="container-fluid px-4 py-5">
       <div class="row justify-content-center">
@@ -47,6 +48,9 @@ const DIAS: Record<string, string> = {
                       <option [value]="p.idPaciente">{{ p.nombre }} {{ p.apellido }} - DNI: {{ p.dni }}</option>
                     }
                   </select>
+                  @if ((form.controls.idPaciente.touched || form.controls.idPaciente.dirty) && form.controls.idPaciente.errors?.['required']) {
+                    <small class="text-danger d-block">Selecciona un paciente.</small>
+                  }
                   <small class="text-muted">
                     Solo se muestran pacientes con datos completos (nombre, DNI, fecha de nacimiento y género).
                   </small>
@@ -63,6 +67,9 @@ const DIAS: Record<string, string> = {
                       <option [value]="m.idMedico">{{ m.nombre }} {{ m.apellido }} - {{ m.especialidadNombre }}</option>
                     }
                   </select>
+                  @if ((form.controls.idMedico.touched || form.controls.idMedico.dirty) && form.controls.idMedico.errors?.['required']) {
+                    <small class="text-danger d-block">Selecciona un médico.</small>
+                  }
                 </div>
 
                 <div class="mb-4">
@@ -73,6 +80,9 @@ const DIAS: Record<string, string> = {
                       <option [value]="h.idHorario">{{ horarioTexto(h) }}</option>
                     }
                   </select>
+                  @if ((form.controls.idHorario.touched || form.controls.idHorario.dirty) && form.controls.idHorario.errors?.['required']) {
+                    <small class="text-danger d-block">Selecciona un bloque de atención.</small>
+                  }
                   <small class="text-muted">
                     El bloque indica la franja recurrente; después elige una fecha y un turno libre de {{ duracionConsultaMinutos }} minutos.
                   </small>
@@ -84,7 +94,22 @@ const DIAS: Record<string, string> = {
                 <div class="row g-3 align-items-end">
                   <div class="col-md-4">
                     <label class="form-label">Fecha de atención</label>
-                    <input type="date" class="form-control" formControlName="fecha" [min]="fechaMinima" [max]="fechaMaxima" (change)="onFechaChange()" />
+                    @if (diaSemanaSeleccionado) {
+                      <input
+                        type="text"
+                        readonly
+                        class="form-control"
+                        placeholder="Selecciona una fecha disponible"
+                        appFlatpickrDiaSemana
+                        [diaSemana]="diaSemanaSeleccionado"
+                        [fechaMinima]="fechaMinima"
+                        [fechaMaxima]="fechaMaxima"
+                        (fechaSeleccionada)="onFechaSeleccionada($event)"
+                      />
+                      <small class="text-muted d-block">Solo se habilitan los días de atención del bloque.</small>
+                    } @else {
+                      <input type="text" class="form-control" placeholder="Selecciona primero un bloque" disabled />
+                    }
                   </div>
                   <div class="col-md-8">
                     <label class="form-label">Turno libre</label>
@@ -94,6 +119,9 @@ const DIAS: Record<string, string> = {
                         <option [value]="t.horaInicio">{{ t.horaInicio }} – {{ t.horaFin }}</option>
                       }
                     </select>
+                    @if ((form.controls.horaInicio.touched || form.controls.horaInicio.dirty) && form.controls.horaInicio.errors?.['required']) {
+                      <small class="text-danger d-block">Selecciona un turno.</small>
+                    }
                     @if (cargandoTurnos) {
                       <small class="text-muted">Consultando turnos libres…</small>
                     } @else if (turnos.length === 0 && form.controls.idHorario.value && form.controls.fecha.value) {
@@ -202,9 +230,11 @@ export class AdminCitaFormComponent implements OnInit {
     this.turnos = [];
   }
 
-  onFechaChange(): void {
+  onFechaSeleccionada(fecha: string): void {
+    this.form.controls.fecha.setValue(fecha);
     this.form.controls.horaInicio.setValue('');
     this.cargarTurnos();
+    this.cdr.detectChanges();
   }
 
   onTurnoChange(): void {
@@ -238,6 +268,15 @@ export class AdminCitaFormComponent implements OnInit {
   horarioTexto(h: Horario): string {
     const dia = DIAS[h.diaSemana] ?? h.diaSemana;
     return `${dia} · Bloque de ${h.horaInicio} a ${h.horaFin}`;
+  }
+
+  get horarioSeleccionado(): Horario | null {
+    const id = Number(this.form.controls.idHorario.value);
+    return this.horariosFiltrados.find((h) => h.idHorario === id) ?? null;
+  }
+
+  get diaSemanaSeleccionado(): string {
+    return this.horarioSeleccionado?.diaSemana ?? '';
   }
 
   get pacientesDisponibles(): Paciente[] {

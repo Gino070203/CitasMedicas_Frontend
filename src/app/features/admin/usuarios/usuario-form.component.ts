@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { UsuarioRequest } from '../../../core/models/usuario.model';
 import { extraerMensajeError } from '../../../core/utils/http-error';
+import { NOMBRE_PATTERN, TELEFONO_PATTERN } from '../../../core/utils/validators';
 import { AdminService } from '../services/admin.service';
 
 @Component({
@@ -36,18 +37,30 @@ import { AdminService } from '../services/admin.service';
                   <div class="col-md-6">
                     <label class="form-label">Nombre</label>
                     <input type="text" class="form-control" placeholder="Ingrese el nombre" formControlName="nombre" maxlength="100" />
+                    @if ((form.controls.nombre.touched || form.controls.nombre.dirty) && form.controls.nombre.errors?.['pattern']) {
+                      <small class="text-danger">Solo se permiten letras.</small>
+                    }
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Apellido</label>
                     <input type="text" class="form-control" placeholder="Ingrese el apellido" formControlName="apellido" maxlength="100" />
+                    @if ((form.controls.apellido.touched || form.controls.apellido.dirty) && form.controls.apellido.errors?.['pattern']) {
+                      <small class="text-danger">Solo se permiten letras.</small>
+                    }
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">DNI</label>
                     <input type="text" class="form-control" placeholder="8 dígitos" formControlName="dni" inputmode="numeric" minlength="8" maxlength="8" />
+                    @if ((form.controls.dni.touched || form.controls.dni.dirty) && form.controls.dni.errors?.['pattern']) {
+                      <small class="text-danger d-block">El DNI debe tener 8 dígitos.</small>
+                    }
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Teléfono</label>
-                    <input type="tel" class="form-control" placeholder="Número telefónico" formControlName="telefono" maxlength="20" />
+                    <input type="tel" class="form-control" placeholder="Número telefónico" formControlName="telefono" inputmode="numeric" maxlength="9" />
+                    @if ((form.controls.telefono.touched || form.controls.telefono.dirty) && form.controls.telefono.errors?.['pattern']) {
+                      <small class="text-danger d-block">El teléfono debe tener 9 dígitos.</small>
+                    }
                   </div>
                   <div class="col-12">
                     <label class="form-label">Dirección</label>
@@ -65,6 +78,9 @@ import { AdminService } from '../services/admin.service';
                   <div class="col-md-6">
                     <label class="form-label">Correo electrónico</label>
                     <input type="email" class="form-control" placeholder="ejemplo@correo.com" formControlName="correo" maxlength="100" />
+                    @if ((form.controls.correo.touched || form.controls.correo.dirty) && form.controls.correo.errors?.['email']) {
+                      <small class="text-danger d-block">Ingresa un correo válido (con &#64;).</small>
+                    }
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Rol del usuario</label>
@@ -74,6 +90,9 @@ import { AdminService } from '../services/admin.service';
                       <option value="MEDICO">Médico</option>
                       <option value="PACIENTE">Paciente</option>
                     </select>
+                    @if ((form.controls.rol.touched || form.controls.rol.dirty) && form.controls.rol.errors?.['required']) {
+                      <small class="text-danger d-block">Selecciona un rol.</small>
+                    }
                   </div>
                   <div class="col-12">
                     <label class="form-label">Contraseña</label>
@@ -126,10 +145,10 @@ export class AdminUsuarioFormComponent implements OnInit {
   mostrarPassword = false;
 
   form = this.fb.nonNullable.group({
-    nombre: ['', [Validators.required]],
-    apellido: ['', [Validators.required]],
+    nombre: ['', [Validators.required, Validators.pattern(NOMBRE_PATTERN)]],
+    apellido: ['', [Validators.required, Validators.pattern(NOMBRE_PATTERN)]],
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
-    telefono: [''],
+    telefono: ['', [Validators.pattern(TELEFONO_PATTERN)]],
     direccion: [''],
     correo: ['', [Validators.required, Validators.email]],
     rol: ['', [Validators.required]],

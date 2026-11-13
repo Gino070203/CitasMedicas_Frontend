@@ -37,6 +37,9 @@ import { extraerMensajeError } from '../../../core/utils/http-error';
               class="auth-code-input"
               required
             />
+            @if ((form.controls.codigo.touched || form.controls.codigo.dirty) && form.controls.codigo.errors?.['required']) {
+              <small class="text-danger d-block">El código es obligatorio.</small>
+            }
           </div>
 
           <button type="submit" class="btn-verify" [disabled]="form.invalid || cargando">

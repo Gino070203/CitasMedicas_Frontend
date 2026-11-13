@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { PerfilPacienteForm, PerfilPacienteVista } from '../../../core/models/paciente.model';
 import { extraerMensajeError } from '../../../core/utils/http-error';
+import { IDENTIFICADOR_PATTERN, NOMBRE_PATTERN, TELEFONO_PATTERN } from '../../../core/utils/validators';
 import { PacienteService } from '../services/paciente.service';
 
 @Component({
@@ -54,6 +55,9 @@ import { PacienteService } from '../services/paciente.service';
                   maxlength="60"
                   required
                 />
+                @if ((form.controls.nombre.touched || form.controls.nombre.dirty) && form.controls.nombre.errors?.['pattern']) {
+                  <small class="text-danger d-block">Solo se permiten letras.</small>
+                }
               </div>
 
               <div class="col-12 col-md-6">
@@ -67,6 +71,9 @@ import { PacienteService } from '../services/paciente.service';
                   maxlength="60"
                   required
                 />
+                @if ((form.controls.apellido.touched || form.controls.apellido.dirty) && form.controls.apellido.errors?.['pattern']) {
+                  <small class="text-danger d-block">Solo se permiten letras.</small>
+                }
               </div>
 
               <div class="col-12 col-md-6">
@@ -81,6 +88,9 @@ import { PacienteService } from '../services/paciente.service';
                   maxlength="8"
                   required
                 />
+                @if ((form.controls.dni.touched || form.controls.dni.dirty) && form.controls.dni.errors?.['pattern']) {
+                  <small class="text-danger d-block">El DNI debe tener 8 dígitos.</small>
+                }
               </div>
 
               <div class="col-12 col-md-6">
@@ -88,13 +98,16 @@ import { PacienteService } from '../services/paciente.service';
                 <input
                   id="perfilTelefono"
                   type="tel"
-                  inputmode="tel"
+                  inputmode="numeric"
                   autocomplete="tel"
                   class="form-control patient-form-control"
                   formControlName="telefono"
-                  maxlength="20"
-                  placeholder="Ej. +51 987 654 321"
+                  maxlength="9"
+                  placeholder="Ej. 987 654 321"
                 />
+                @if ((form.controls.telefono.touched || form.controls.telefono.dirty) && form.controls.telefono.errors?.['pattern']) {
+                  <small class="text-danger d-block">El teléfono debe tener 9 dígitos.</small>
+                }
               </div>
 
               <div class="col-12">
@@ -124,6 +137,9 @@ import { PacienteService } from '../services/paciente.service';
                   [max]="fechaMaximaNacimiento"
                   required
                 />
+                @if ((form.controls.fechaNacimiento.touched || form.controls.fechaNacimiento.dirty) && form.controls.fechaNacimiento.errors?.['required']) {
+                  <small class="text-danger d-block">Selecciona tu fecha de nacimiento.</small>
+                }
               </div>
 
               <div class="col-12 col-md-6">
@@ -139,6 +155,9 @@ import { PacienteService } from '../services/paciente.service';
                   <option value="FEMENINO">Femenino</option>
                   <option value="OTRO">Otro</option>
                 </select>
+                @if ((form.controls.genero.touched || form.controls.genero.dirty) && form.controls.genero.errors?.['required']) {
+                  <small class="text-danger d-block">Selecciona un género.</small>
+                }
               </div>
             </div>
           </section>
@@ -212,15 +231,15 @@ export class PacientePerfilComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   form = this.fb.nonNullable.group({
-    nombre: ['', [Validators.required]],
-    apellido: ['', [Validators.required]],
+    nombre: ['', [Validators.required, Validators.pattern(NOMBRE_PATTERN)]],
+    apellido: ['', [Validators.required, Validators.pattern(NOMBRE_PATTERN)]],
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
-    telefono: [''],
+    telefono: ['', [Validators.pattern(TELEFONO_PATTERN)]],
     direccion: [''],
     fechaNacimiento: ['', [Validators.required]],
     genero: ['', [Validators.required]],
-    numeroHistoria: [''],
-    sis: [''],
+    numeroHistoria: ['', [Validators.pattern(IDENTIFICADOR_PATTERN)]],
+    sis: ['', [Validators.pattern(IDENTIFICADOR_PATTERN)]],
   });
 
   vista: PerfilPacienteVista | null = null;

@@ -1,7 +1,7 @@
 export function extraerMensajeError(error: unknown): string {
   if (typeof error === 'object' && error !== null) {
     const err = error as {
-      error?: { message?: string; fieldErrors?: Record<string, string> };
+      error?: { message?: string; error?: string; fieldErrors?: Record<string, string> };
       message?: string;
     };
 
@@ -13,6 +13,9 @@ export function extraerMensajeError(error: unknown): string {
     }
     if (err.error?.message) {
       return err.error.message;
+    }
+    if (err.error?.error) {
+      return err.error.error;
     }
     if (err.message) {
       return err.message;

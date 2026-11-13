@@ -21,11 +21,20 @@ import { extraerMensajeError } from '../../../core/utils/http-error';
           <div class="auth-field">
             <label>Correo Electrónico:</label>
             <input type="email" formControlName="correo" required />
+            @if ((form.controls.correo.touched || form.controls.correo.dirty) && form.controls.correo.errors?.['required']) {
+              <small class="text-danger d-block">El correo es obligatorio.</small>
+            }
+            @if ((form.controls.correo.touched || form.controls.correo.dirty) && form.controls.correo.errors?.['email']) {
+              <small class="text-danger d-block">Ingresa un correo válido (con &#64;).</small>
+            }
           </div>
 
           <div class="auth-field">
             <label>Contraseña:</label>
             <input type="password" formControlName="password" required />
+            @if ((form.controls.password.touched || form.controls.password.dirty) && form.controls.password.errors?.['required']) {
+              <small class="text-danger d-block">La contraseña es obligatoria.</small>
+            }
           </div>
 
           <button type="submit" class="btn-login" [disabled]="form.invalid || cargando">

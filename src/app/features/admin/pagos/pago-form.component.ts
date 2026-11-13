@@ -55,6 +55,9 @@ import { AdminService } from '../services/admin.service';
                         <option [value]="c.idCita">Cita N.º {{ c.idCita }} - {{ c.nombrePaciente }} - {{ c.fecha }}</option>
                       }
                     </select>
+                    @if ((form.controls.idCita.touched || form.controls.idCita.dirty) && form.controls.idCita.errors?.['required']) {
+                      <small class="text-danger d-block">Selecciona una cita.</small>
+                    }
                     <small class="text-muted">Solo aparecen citas pendientes de pago de pacientes sin SIS.</small>
                   </div>
 
@@ -68,6 +71,9 @@ import { AdminService } from '../services/admin.service';
                       <span class="input-group-text">S/</span>
                       <input type="number" class="form-control" min="0.01" step="0.01" placeholder="Ejemplo: 30.00" formControlName="monto" />
                     </div>
+                    @if ((form.controls.monto.touched || form.controls.monto.dirty) && form.controls.monto.errors?.['min']) {
+                      <small class="text-danger d-block">El monto debe ser mayor que 0.</small>
+                    }
                     <small class="text-muted">Ingresa el importe correspondiente a la atención médica.</small>
                   </div>
 
@@ -79,6 +85,9 @@ import { AdminService } from '../services/admin.service';
                       <option value="TARJETA">Tarjeta</option>
                       <option value="TRANSFERENCIA">Transferencia bancaria</option>
                     </select>
+                    @if ((form.controls.metodoPago.touched || form.controls.metodoPago.dirty) && form.controls.metodoPago.errors?.['required']) {
+                      <small class="text-danger d-block">Selecciona un método de pago.</small>
+                    }
                   </div>
 
                   <div class="admin-resumen mb-4">
