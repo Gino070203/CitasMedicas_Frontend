@@ -44,8 +44,8 @@ function fechaValida(control: AbstractControl): ValidationErrors | null {
                 @if (form.controls.numeroHistoria.touched && form.controls.numeroHistoria.invalid) { <small class="validation">Ingresa una historia clínica de hasta 20 caracteres.</small> }
                 @if (id !== null) { <label class="check-label" for="historia-verificada"><input type="checkbox" id="historia-verificada" formControlName="numeroHistoriaVerificado" /> Historia clínica revisada y verificada por el centro</label> }
               </div>
-              <div class="field"><label for="paciente-sis">SIS (Seguro Integral de Salud)</label><input id="paciente-sis" formControlName="sis" maxlength="20" placeholder="Ej. 12345678 o Particular" />
-                @if (form.controls.sis.touched && form.controls.sis.invalid) { <small class="validation">El SIS admite hasta 20 caracteres.</small> }
+              <div class="field"><label for="paciente-sis">SIS (Seguro Integral de Salud)</label><input id="paciente-sis" formControlName="sis" maxlength="8" inputmode="numeric" placeholder="Ej. 12345678" />
+                @if ((form.controls.sis.touched || form.controls.sis.dirty) && form.controls.sis.errors?.['pattern']) { <small class="validation">El SIS debe tener 8 dígitos.</small> }
                 @if (id !== null) { <label class="check-label" for="sis-verificado"><input type="checkbox" id="sis-verificado" formControlName="sisVerificado" /> Afiliación SIS revisada y verificada por el centro</label> }
               </div>
               <div class="field"><label for="paciente-nacimiento">Fecha de nacimiento <span>*</span></label><input id="paciente-nacimiento" type="date" formControlName="fechaNacimiento" [max]="hoy" required />
@@ -162,7 +162,7 @@ export class AdminPacienteFormComponent implements OnInit {
   form = this.fb.nonNullable.group({
     idUsuario: [0, [Validators.required, Validators.min(1)]],
     numeroHistoria: ['', [Validators.required, Validators.maxLength(20), Validators.pattern(/\S/)]],
-    sis: ['', Validators.maxLength(20)],
+    sis: ['', Validators.pattern(/^(?:$|\d{8})$/)],
     fechaNacimiento: ['', [Validators.required, fechaValida]],
     genero: ['', [Validators.required, Validators.pattern(/^(MASCULINO|FEMENINO|OTRO)$/)]],
     direccion: ['', Validators.maxLength(100)],
