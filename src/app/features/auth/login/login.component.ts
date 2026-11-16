@@ -7,6 +7,7 @@ import { extraerMensajeError } from '../../../core/utils/http-error';
 
 @Component({
   selector: 'app-login',
+  styleUrl: './login.component.css',
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <div class="auth-screen">
@@ -14,13 +15,13 @@ import { extraerMensajeError } from '../../../core/utils/http-error';
         <h2>Iniciar Sesión</h2>
 
         @if (error) {
-          <div class="auth-error">{{ error }}</div>
+          <div class="auth-error" role="alert">{{ error }}</div>
         }
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="auth-field">
-            <label>Correo Electrónico:</label>
-            <input type="email" formControlName="correo" required />
+            <label for="login-correo">Correo Electrónico:</label>
+            <input id="login-correo" autocomplete="username" type="email" formControlName="correo" required />
             @if ((form.controls.correo.touched || form.controls.correo.dirty) && form.controls.correo.errors?.['required']) {
               <small class="text-danger d-block">El correo es obligatorio.</small>
             }
@@ -30,8 +31,8 @@ import { extraerMensajeError } from '../../../core/utils/http-error';
           </div>
 
           <div class="auth-field">
-            <label>Contraseña:</label>
-            <input type="password" formControlName="password" required />
+            <label for="login-password">Contraseña:</label>
+            <input id="login-password" autocomplete="current-password" type="password" formControlName="password" required />
             @if ((form.controls.password.touched || form.controls.password.dirty) && form.controls.password.errors?.['required']) {
               <small class="text-danger d-block">La contraseña es obligatoria.</small>
             }
