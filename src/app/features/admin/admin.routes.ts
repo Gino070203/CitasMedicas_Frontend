@@ -27,9 +27,25 @@ export const adminRoutes: Routes = [
           import('./usuarios/usuario-form.component').then((m) => m.AdminUsuarioFormComponent),
       },
       {
+        path: 'pacientes/nuevo',
+        loadComponent: () => import('./pacientes/paciente-form.component').then(m => m.AdminPacienteFormComponent),
+      },
+      {
+        path: 'pacientes/editar/:id',
+        loadComponent: () => import('./pacientes/paciente-form.component').then(m => m.AdminPacienteFormComponent),
+      },
+      {
         path: 'pacientes',
         loadComponent: () =>
           import('./pacientes/pacientes.component').then((m) => m.AdminPacientesComponent),
+      },
+      {
+        path: 'medicos/nuevo',
+        loadComponent: () => import('./medicos/medico-form.component').then(m => m.AdminMedicoFormComponent),
+      },
+      {
+        path: 'medicos/editar/:id',
+        loadComponent: () => import('./medicos/medico-form.component').then(m => m.AdminMedicoFormComponent),
       },
       {
         path: 'medicos',
@@ -37,9 +53,21 @@ export const adminRoutes: Routes = [
           import('./medicos/medicos.component').then((m) => m.AdminMedicosComponent),
       },
       {
+        path: 'especialidades/nuevo',
+        loadComponent: () => import('./especialidades/especialidad-form.component').then(m => m.AdminEspecialidadFormComponent),
+      },
+      {
+        path: 'especialidades/editar/:id',
+        loadComponent: () => import('./especialidades/especialidad-form.component').then(m => m.AdminEspecialidadFormComponent),
+      },
+      {
         path: 'especialidades',
         loadComponent: () =>
           import('./especialidades/especialidades.component').then((m) => m.AdminEspecialidadesComponent),
+      },
+      {
+        path: 'horarios/nuevo',
+        loadComponent: () => import('./horarios/horario-form.component').then(m => m.AdminHorarioFormComponent),
       },
       {
         path: 'horarios',

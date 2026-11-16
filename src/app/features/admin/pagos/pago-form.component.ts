@@ -10,6 +10,32 @@ import { AdminService } from '../services/admin.service';
 @Component({
   selector: 'app-admin-pago-form',
   imports: [ReactiveFormsModule, RouterLink],
+  styles: [`:host { display: flex; flex: 1; flex-direction: column; min-width: 0; font-family: Arial, sans-serif; background: #f8fafc; color: #1e293b; }
+main { flex: 1; }
+.admin-form-card { border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; }
+.admin-form-header { padding: 28px 34px; background: linear-gradient(110deg,#0b1f36,#1767b2); color: white; }
+.admin-form-header h3 { color: white; font-size: 23px; font-weight: 700; }
+.admin-form-header p { color: #dceaff; font-size: 13px; line-height: 1.7; }
+.form-label { font-size: 13px; font-weight: 700; color: #334155; }
+.form-control, .form-select, .input-group-text { padding: 11px 14px; font-size: 13px; background: #f8fafc; border-color: #cbd5e1; }
+.form-control:focus, .form-select:focus { background: white; border-color: #1767b2; box-shadow: 0 0 0 3px #1767b21a; }
+.seccion { color: #123b70; font-size: 16px; font-weight: 700; }
+small { font-size: 12px; line-height: 1.6; }
+.admin-info-box { padding: 16px 20px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; color: #0369a1; font-size: 13px; line-height: 1.7; }
+.admin-resumen { padding: 22px; border-radius: 12px; background: #f8fafc; border: 1px solid #dce5f2; font-size: 13px; }
+.admin-resumen h6 { color: #123b70; }
+.admin-resumen .d-flex { gap: 20px; }
+.admin-resumen strong { text-align: right; }
+.admin-warning-box { padding: 16px 20px; border: 1px solid #fde68a; border-radius: 10px; background: #fffbeb; color: #92400e; font-size: 12px; line-height: 1.7; }
+.btn-success { background: #123b70; border-color: #123b70; font-size: 13px; font-weight: 600; padding-top: 10px; padding-bottom: 10px; }
+.btn-success:hover { background: #1767b2; border-color: #1767b2; }
+.btn-outline-secondary { font-size: 13px; padding-top: 10px; padding-bottom: 10px; }
+.modal-content { border: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px #0b1f3633; }
+.modal-header { background: #f0f7ff; border-bottom-color: #dce5f2; }
+.modal-title { font-size: 18px; color: #123b70; font-weight: 700; }
+.modal-body { font-size: 14px; line-height: 1.8; }
+.admin-footer { margin-top: auto; padding: 22px; background: white; border-top: 1px solid #dce5f2; color: #8296b5; text-align: center; font-size: 12px; }
+@media(max-width:575px) { .admin-form-header { padding: 24px; } .admin-resumen { padding: 16px; } .admin-resumen .d-flex { flex-wrap: wrap; gap: 6px; } }`],
   template: `
     <main class="container-fluid px-4 py-5">
       <div class="row justify-content-center">
@@ -17,7 +43,7 @@ import { AdminService } from '../services/admin.service';
           <div class="card admin-form-card shadow-sm">
             <div class="admin-form-header">
               <h3 class="mb-2"><i class="bi bi-cash-coin me-2"></i> Registrar pago de cita médica</h3>
-              <p class="mb-0">Registra los pagos particulares de los pacientes que no cuentan con SIS.</p>
+              <p class="mb-0">Registra los pagos particulares de las citas pendientes sin cobertura SIS verificada.</p>
             </div>
 
             <div class="card-body p-4 p-md-5">
@@ -35,7 +61,7 @@ import { AdminService } from '../services/admin.service';
 
               @if (cargando) {
                 <p class="text-muted">Cargando citas pendientes…</p>
-              } @else if (citas.length === 0) {
+              } @else if (falloCarga) { <button type="button" class="btn btn-outline-secondary" (click)="ngOnInit()">Reintentar cargar citas</button> } @else if (citas.length === 0) {
                 <div class="text-center py-4">
                   <i class="bi bi-check-circle-fill text-success display-4"></i>
                   <h5 class="mt-3">No hay citas pendientes de pago</h5>
@@ -58,7 +84,7 @@ import { AdminService } from '../services/admin.service';
                     @if ((form.controls.idCita.touched || form.controls.idCita.dirty) && form.controls.idCita.errors?.['required']) {
                       <small class="text-danger d-block">Selecciona una cita.</small>
                     }
-                    <small class="text-muted">Solo aparecen citas pendientes de pago de pacientes sin SIS.</small>
+                    <small class="text-muted">Solo aparecen citas pendientes de pago sin cobertura SIS verificada.</small>
                   </div>
 
                   <hr class="my-4" />
@@ -114,7 +140,7 @@ import { AdminService } from '../services/admin.service';
                   </div>
 
                   <div class="d-flex flex-wrap gap-2">
-                    <button type="submit" class="btn btn-success px-4" [disabled]="form.invalid">
+                    <button type="submit" class="btn btn-success px-4" [disabled]="form.invalid || guardando">
                       <i class="bi bi-check-circle me-1"></i> Registrar pago
                     </button>
                     <a routerLink="/admin/pagos" class="btn btn-outline-secondary px-4">
@@ -129,17 +155,18 @@ import { AdminService } from '../services/admin.service';
       </div>
     </main>
 
+    <footer class="admin-footer">© 2026 Centro Médico Buenos Aires de Villa</footer>
     @if (modalConfirmacion) {
       <div class="modal-backdrop fade show"></div>
-      <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true">
+      <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="confirmar-pago-titulo" (keydown.escape)="cerrarModalConfirmacion()">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title"><i class="bi bi-cash-coin text-success me-2"></i> Confirmar pago</h5>
+              <h5 id="confirmar-pago-titulo" class="modal-title"><i class="bi bi-cash-coin text-success me-2"></i> Confirmar pago</h5>
               <button type="button" class="btn-close" aria-label="Cerrar" (click)="cerrarModalConfirmacion()"></button>
             </div>
             <div class="modal-body">
-              ¿Confirmas que recibiste el pago y deseas confirmar esta cita médica?
+              <p>{{ resumenCita }}</p><p>Método: <strong>{{ resumenMetodo }}</strong> · Total: <strong>{{ resumenMonto }}</strong></p>¿Confirmas que recibiste el pago y deseas confirmar esta cita médica?
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" (click)="cerrarModalConfirmacion()" [disabled]="guardando">
@@ -167,14 +194,18 @@ export class AdminPagoFormComponent implements OnInit {
   guardando = false;
   error: string | null = null;
   modalConfirmacion = false;
+  falloCarga = false;
 
   form = this.fb.nonNullable.group({
     idCita: ['', [Validators.required]],
     monto: [0, [Validators.required, Validators.min(0.01)]],
-    metodoPago: ['', [Validators.required]],
+    metodoPago: ['', [Validators.required, Validators.pattern(/^(EFECTIVO|TARJETA|TRANSFERENCIA)$/)]],
   });
 
   ngOnInit(): void {
+    this.cargando = true;
+    this.falloCarga = false;
+    this.error = null;
     this.service.getCitasPendientes().subscribe({
       next: (citas) => {
         this.citas = citas;
@@ -182,6 +213,7 @@ export class AdminPagoFormComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
+        this.falloCarga = true;
         this.error = extraerMensajeError(err);
         this.cargando = false;
         this.cdr.detectChanges();
@@ -204,7 +236,7 @@ export class AdminPagoFormComponent implements OnInit {
   }
 
   abrirModalConfirmacion(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.guardando || this.cargando || this.falloCarga) {
       return;
     }
     this.modalConfirmacion = true;
@@ -217,6 +249,7 @@ export class AdminPagoFormComponent implements OnInit {
   }
 
   confirmarPago(): void {
+    if (!this.modalConfirmacion || this.guardando || this.form.invalid || this.falloCarga) return;
     const value = this.form.getRawValue();
     const request: PagoRequest = {
       idCita: Number(value.idCita),

@@ -9,6 +9,28 @@ import { AdminService, FiltrosPagos } from '../services/admin.service';
 @Component({
   selector: 'app-admin-pagos',
   imports: [RouterLink, FormsModule],
+  styles: [`:host { display: flex; flex: 1; flex-direction: column; min-width: 0; background: #f8fafc; font-family: Arial, sans-serif; color: #1e293b; }
+main { flex: 1; }
+.admin-page-header { margin-bottom: 25px; }
+.admin-filter-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 18px; margin-bottom: 22px; background: white; border: 1px solid #dce5f2; border-radius: 12px; }
+.admin-filter-bar .flex-grow-1 { min-width: 220px; }
+.admin-filter-bar .form-control, .admin-filter-bar .form-select { padding: 10px 12px; font-size: 13px; background: #f8fafc; border-color: #dce5f2; border-radius: 6px; }
+.date-label { display: block; color: #64748b; font-size: 11px; margin-bottom: 6px; }
+.btn-primary { background: #1767b2; border-color: #1767b2; font-size: 13px; font-weight: 600; }
+.btn-primary:hover { background: #123b70; border-color: #123b70; }
+.card { border-radius: 12px; overflow: hidden; }
+.admin-table-light thead th { padding: 16px 14px; background: #f8fafc; color: #475569; border-bottom: 2px solid #dce5f2; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
+.admin-table-light td { padding: 20px 14px; border-color: #e2e8f0; font-size: 13px; }
+.admin-table-light small { display: block; margin-top: 5px; font-size: 12px; }
+.admin-monto { color: #123b70; font-weight: 700; white-space: nowrap; }
+.badge { padding: 6px 9px; border-radius: 5px; font-size: 11px; font-weight: 500; }
+.admin-badge-pagado, .admin-badge-pendiente, .admin-badge-cancelado { display: inline-block; padding: 8px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.admin-badge-pagado { color: #166534; background: #dcfce7; }
+.admin-badge-pendiente { color: #92400e; background: #fef3c7; }
+.admin-badge-cancelado { color: #991b1b; background: #fee2e2; }
+.admin-footer { margin-top: auto; padding: 22px; background: white; border-top: 1px solid #dce5f2; color: #8296b5; text-align: center; font-size: 12px; }
+.form-control:focus, .form-select:focus { border-color: #1767b2; box-shadow: 0 0 0 3px #1767b21a; }
+@media(max-width:767px) { .admin-filter-bar > div { width: 100% !important; } .admin-filter-bar .flex-grow-1 { min-width: 0; } }`],
   template: `
     <main class="container-fluid px-4 py-4">
       <div class="admin-page-header">
@@ -25,7 +47,7 @@ import { AdminService, FiltrosPagos } from '../services/admin.service';
         </div>
       }
 
-      <div class="admin-filter-bar">
+      <form class="admin-filter-bar" (ngSubmit)="filtrar()">
         <div class="flex-grow-1">
           <input
             type="search"
@@ -33,21 +55,21 @@ import { AdminService, FiltrosPagos } from '../services/admin.service';
             class="form-control"
             placeholder="ID de pago/cita, paciente o DNI..."
             [(ngModel)]="filtros.q"
-            (keyup.enter)="filtrar()"
+
           />
         </div>
         <div style="width: 210px;">
-          <select name="metodo" class="form-select" [(ngModel)]="filtros.metodo">
+          <select aria-label="Método de pago" name="metodo" class="form-select" [(ngModel)]="filtros.metodo">
             <option value="">Todos los métodos</option>
             <option value="EFECTIVO">Efectivo</option>
             <option value="TARJETA">Tarjeta</option>
             <option value="TRANSFERENCIA">Transferencia</option>
             <option value="SIS (Seguro Integral)">SIS</option>
-            <option value="Presencial">Presencial</option>
+            <option value="PRESENCIAL">Presencial</option>
           </select>
         </div>
         <div style="width: 210px;">
-          <select name="estado" class="form-select" [(ngModel)]="filtros.estado">
+          <select aria-label="Estado del pago" name="estado" class="form-select" [(ngModel)]="filtros.estado">
             <option value="">Todos los estados</option>
             <option value="PAGADO">Pagado</option>
             <option value="PENDIENTE">Pendiente</option>
@@ -55,16 +77,16 @@ import { AdminService, FiltrosPagos } from '../services/admin.service';
           </select>
         </div>
         <div style="width: 155px;">
-          <input type="date" name="desde" class="form-control" [(ngModel)]="filtros.desde" aria-label="Desde" />
+          <label class="date-label" for="pagos-desde">Desde</label><input id="pagos-desde" type="date" name="desde" class="form-control" [(ngModel)]="filtros.desde" aria-label="Desde" />
         </div>
         <div style="width: 155px;">
-          <input type="date" name="hasta" class="form-control" [(ngModel)]="filtros.hasta" aria-label="Hasta" />
+          <label class="date-label" for="pagos-hasta">Hasta</label><input id="pagos-hasta" type="date" name="hasta" class="form-control" [(ngModel)]="filtros.hasta" aria-label="Hasta" />
         </div>
         <div>
-          <button type="button" class="btn btn-primary btn-sm px-3 py-2" (click)="filtrar()">Filtrar</button>
+          <button type="submit" class="btn btn-primary btn-sm px-3 py-2">Filtrar</button>
           <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2" (click)="limpiar()">Limpiar</button>
         </div>
-      </div>
+      </form>
 
       <div class="card shadow-sm border-0">
         <div class="card-body p-0">
@@ -110,7 +132,7 @@ import { AdminService, FiltrosPagos } from '../services/admin.service';
                     <tr>
                       <td colspan="7" class="text-center text-muted py-5">
                         <i class="bi bi-receipt fs-2 d-block mb-2 text-secondary"></i>
-                        No existen pagos registrados en el sistema.
+                        {{ error ? 'No se pudieron cargar los pagos. Intenta filtrar nuevamente.' : 'No hay pagos que coincidan con los filtros.' }}
                       </td>
                     </tr>
                   }
@@ -146,6 +168,10 @@ export class AdminPagosComponent implements OnInit {
   }
 
   cargarPagos(): void {
+    if (this.filtros.desde && this.filtros.hasta && this.filtros.desde > this.filtros.hasta) {
+      this.error = 'La fecha Desde no puede ser posterior a Hasta.';
+      return;
+    }
     this.cargando = true;
     this.error = null;
     this.service.getPagos(this.filtros).subscribe({
@@ -155,6 +181,7 @@ export class AdminPagosComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
+        this.pagos = [];
         this.error = extraerMensajeError(err);
         this.cargando = false;
         this.cdr.detectChanges();
