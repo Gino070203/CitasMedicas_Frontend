@@ -168,7 +168,7 @@ import { AdminService } from '../services/admin.service';
     </main>
 
     <footer class="admin-footer">
-      <p class="mb-0">© 2026 Centro Médico Buenos Aires de Villa | Sistema de Gestión de Citas Médicas</p>
+      <p class="mb-0">© 2026 Centro Médico Buenos Aires de Villa</p>
     </footer>
   `,
 })
