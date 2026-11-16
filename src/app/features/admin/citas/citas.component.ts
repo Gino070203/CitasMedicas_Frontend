@@ -147,7 +147,6 @@ import { AdminService, FiltrosCitas } from '../services/admin.service';
 
     <footer class="admin-footer">
       <small>© 2026 Centro Médico Buenos Aires de Villa</small>
-      <small>Gino Miranda</small>
     </footer>
 
     @if (citaSeleccionada) {
