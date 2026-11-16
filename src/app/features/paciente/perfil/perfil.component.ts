@@ -197,9 +197,13 @@ import { PacienteService } from '../services/paciente.service';
                   autocomplete="off"
                   class="form-control patient-form-control"
                   formControlName="sis"
-                  maxlength="20"
+                  maxlength="8"
+                  inputmode="numeric"
                   placeholder="Ingresa tu número SIS si cuentas con él"
                 />
+                @if ((form.controls.sis.touched || form.controls.sis.dirty) && form.controls.sis.errors?.['pattern']) {
+                  <small class="text-danger d-block">El SIS debe tener 8 dígitos.</small>
+                }
                 @if (!tieneSis) {
                   <span class="form-text">Opcional. Déjalo vacío si no cuentas con SIS.</span>
                 } @else if (sisVerificado) {
@@ -239,7 +243,7 @@ export class PacientePerfilComponent implements OnInit {
     fechaNacimiento: ['', [Validators.required]],
     genero: ['', [Validators.required]],
     numeroHistoria: ['', [Validators.pattern(IDENTIFICADOR_PATTERN)]],
-    sis: ['', [Validators.pattern(IDENTIFICADOR_PATTERN)]],
+    sis: ['', [Validators.pattern(/^(?:$|\d{8})$/)]],
   });
 
   vista: PerfilPacienteVista | null = null;
