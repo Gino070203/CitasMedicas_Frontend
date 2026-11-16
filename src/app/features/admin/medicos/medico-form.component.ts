@@ -31,8 +31,9 @@ import { MedicosService } from './medicos.service';
             </div>
           }
           <div class="fields-grid">
-            <div class="field"><label for="medico-cmp">Número de Colegiatura (CMP) <span>*</span></label><input id="medico-cmp" type="text" formControlName="cmp" maxlength="20" placeholder="Ej. 54120" required /><small>Código emitido por el Colegio Médico del Perú.</small>
-              @if (form.controls.cmp.touched && form.controls.cmp.invalid) { <small class="validation">Ingresa un CMP válido de hasta 20 caracteres.</small> }
+            <div class="field"><label for="medico-cmp">Número de Colegiatura (CMP) <span>*</span></label><input id="medico-cmp" type="text" formControlName="cmp" maxlength="6" inputmode="numeric" placeholder="Ej. 012345" required /><small>Código emitido por el Colegio Médico del Perú.</small>
+              @if ((form.controls.cmp.touched || form.controls.cmp.dirty) && form.controls.cmp.errors?.['required']) { <small class="validation">El CMP es obligatorio.</small> }
+              @if ((form.controls.cmp.touched || form.controls.cmp.dirty) && form.controls.cmp.errors?.['pattern']) { <small class="validation">El CMP debe tener 6 dígitos.</small> }
             </div>
             <div class="field"><label for="medico-especialidad">Especialidad Médica <span>*</span></label><select id="medico-especialidad" formControlName="idEspecialidad" required><option [ngValue]="0" disabled>Seleccione una especialidad</option>@for (e of especialidades(); track e.idEspecialidad) { <option [ngValue]="e.idEspecialidad" [disabled]="!e.estado">{{ e.nombre }}{{ e.estado ? '' : ' (Inactiva)' }}</option> }</select><small>Área clínica para asignación de turnos y agenda.</small>
               @if (form.controls.idEspecialidad.touched && form.controls.idEspecialidad.invalid) { <small class="validation">Selecciona una especialidad.</small> }
@@ -139,7 +140,7 @@ export class AdminMedicoFormComponent implements OnInit {
   error = signal('');
   form = this.fb.nonNullable.group({
     idUsuario: [0, [Validators.required, Validators.min(1)]],
-    cmp: ['', [Validators.required, Validators.maxLength(20), Validators.pattern(/\S/)]],
+    cmp: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
     idEspecialidad: [0, [Validators.required, Validators.min(1)]],
   });
   ngOnInit(): void {
